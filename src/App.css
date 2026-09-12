@@ -2032,6 +2032,60 @@ body {
 }
 
 @media (max-width: 760px) {
+  .room-shell .video-grid.capacity-1 {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    min-height: 62svh;
+  }
+
+  .room-shell .video-grid.capacity-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    min-height: 62svh;
+  }
+
+  .room-shell .video-grid.capacity-2 .video-tile:first-child {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .room-shell .video-grid.capacity-1 .video-tile,
+  .room-shell .video-grid.capacity-2 .video-tile {
+    min-height: 0;
+  }
+
+  .text-queue-room .text-room-header h1 {
+    font-size: clamp(28px, 8vw, 38px);
+  }
+
+  .text-queue-room .text-room-header > div:last-child strong {
+    max-width: 120px;
+    line-height: 1.35;
+  }
+
+  .text-queue-room .queue-chat-panel {
+    min-height: 240px;
+  }
+
+  .text-queue-room .queue-people-panel {
+    min-height: 190px;
+  }
+
+  .text-queue-room .queue-chat-empty h2 {
+    font-size: 19px;
+  }
+
+  .text-queue-room .queue-chat-empty p,
+  .text-queue-room .text-room-actions p:not(.setup-kicker) {
+    font-size: 10px;
+  }
+
+  .text-queue-room .queue-status-line {
+    padding-top: 12px;
+  }
+}
+
+@media (max-width: 760px) {
   .queue-room .room-topbar {
     padding-top: 22px;
   }
