@@ -1,6 +1,6 @@
 type AppHeaderProps = {
-  onStart: () => void
-}
+  onStart: () => void;
+};
 
 export function AppHeader({ onStart }: AppHeaderProps) {
   return (
@@ -22,5 +22,5 @@ export function AppHeader({ onStart }: AppHeaderProps) {
         Start chatting <span aria-hidden="true">-&gt;</span>
       </button>
     </header>
-  )
+  );
 }

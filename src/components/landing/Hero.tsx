@@ -1,8 +1,8 @@
-import heroImage from '../../assets/hero.png'
+import heroImage from "../../assets/hero.png";
 
 type HeroProps = {
-  onStart: () => void
-}
+  onStart: () => void;
+};
 
 export function Hero({ onStart }: HeroProps) {
   return (
@@ -15,8 +15,8 @@ export function Hero({ onStart }: HeroProps) {
           is out there.
         </h1>
         <p className="hero-description">
-          Meet someone new in a private, live video room. No feeds to scroll,
-          no audience to perform for. Just a real conversation.
+          Meet someone new in a private, live video room. No feeds to scroll, no
+          audience to perform for. Just a real conversation.
         </p>
         <button className="primary-button" type="button" onClick={onStart}>
           Start random chat <span aria-hidden="true">-&gt;</span>
@@ -44,9 +44,11 @@ export function Hero({ onStart }: HeroProps) {
             <i />
             <i />
           </span>
-          <span><strong>12,480</strong> people online</span>
+          <span>
+            <strong>12,480</strong> people online
+          </span>
         </div>
       </div>
     </section>
-  )
+  );
 }

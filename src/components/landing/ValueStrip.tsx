@@ -1,8 +1,8 @@
 const values = [
-  ['01', 'No endless scroll', 'You meet people, not content.'],
-  ['02', 'Small rooms', 'Every voice gets space to be heard.'],
-  ['03', 'Leave anytime', 'Your comfort comes first, always.'],
-]
+  ["01", "No endless scroll", "You meet people, not content."],
+  ["02", "Small rooms", "Every voice gets space to be heard."],
+  ["03", "Leave anytime", "Your comfort comes first, always."],
+];
 
 export function ValueStrip() {
   return (
@@ -17,5 +17,5 @@ export function ValueStrip() {
         </article>
       ))}
     </section>
-  )
+  );
 }

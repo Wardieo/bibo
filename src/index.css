@@ -1,5 +1,5 @@
- :root {
-  font-family: 'Manrope', sans-serif;
+:root {
+  font-family: "Manrope", sans-serif;
   color: #202124;
   background: #f6f4ee;
   font-synthesis: none;
@@ -8,4 +8,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body { margin: 0; min-width: 320px; }
+body {
+  margin: 0;
+  min-width: 320px;
+}
