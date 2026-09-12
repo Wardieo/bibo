@@ -893,6 +893,8 @@ h1 {
   }
   .room-controls {
     flex-wrap: wrap;
+    padding-right: 0;
+    padding-left: 0;
   }
   .next-button {
     order: -1;
@@ -1696,6 +1698,81 @@ body {
   .capacity-3 .video-tile {
     min-height: 0;
   }
+  .room-topbar h1 {
+    font-size: clamp(25px, 8vw, 36px);
+    letter-spacing: -2px;
+  }
+  .room-status {
+    white-space: normal;
+    line-height: 1.5;
+  }
+  .video-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .video-tile {
+    min-height: 31svh;
+  }
+  .room-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .room-controls .round-control,
+  .room-controls .next-button,
+  .room-controls .more-wrap,
+  .room-controls .leave-button {
+    width: 100%;
+  }
+  .room-controls .more-wrap {
+    display: contents;
+  }
+  .more-menu {
+    right: 12px;
+    bottom: 58px;
+  }
+  .room-controls .next-button {
+    grid-column: 1 / -1;
+    min-height: 46px;
+  }
+  .live-room-content .video-grid {
+    flex: none;
+  }
+  .live-room-content .room-chat {
+    flex: none;
+    min-height: 260px;
+  }
+  .text-room {
+    padding: 20px 14px 34px;
+  }
+  .text-room-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 20px;
+  }
+  .text-room-header h1 {
+    font-size: clamp(32px, 10vw, 48px);
+    letter-spacing: -2px;
+  }
+  .text-room-header > div:last-child {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .text-room-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: auto;
+    margin-top: 20px;
+  }
+  .text-room-body .room-chat,
+  .text-room-actions {
+    min-height: 300px;
+  }
+  .text-room-actions {
+    padding: 16px;
+  }
 }
 @media (max-width: 760px) {
   .live-room-content {
@@ -1952,4 +2029,123 @@ body {
 .text-setup .online-users {
   top: 28px;
   right: 7vw;
+}
+
+@media (max-width: 760px) {
+  .queue-room .room-topbar {
+    padding-top: 22px;
+  }
+
+  .queue-room .room-topbar .online-users {
+    top: 0;
+    right: 0;
+    font-size: 9px;
+  }
+
+  .queue-room .room-topbar h1 {
+    max-width: 280px;
+    font-size: clamp(30px, 9vw, 42px);
+  }
+
+  .queue-room .queue-grid.capacity-1 {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+
+  .queue-room .queue-grid.capacity-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+
+  .queue-room .queue-grid.capacity-2 .video-tile:first-child {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .text-queue-room {
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+    padding: 16px 14px 24px;
+  }
+
+  .text-queue-room > .online-users {
+    top: 16px;
+    right: 14px;
+    max-width: 145px;
+    justify-content: flex-end;
+    text-align: right;
+    font-size: 9px;
+  }
+
+  .text-queue-room .text-room-header {
+    width: 100%;
+    margin-top: 34px;
+    padding-bottom: 16px;
+    gap: 10px;
+  }
+
+  .text-queue-room .text-room-header h1 {
+    max-width: 100%;
+    font-size: clamp(30px, 9vw, 42px);
+    line-height: 1.05;
+    letter-spacing: -2px;
+  }
+
+  .text-queue-room .text-room-header > div:last-child {
+    width: 100%;
+    align-items: center;
+    font-size: 9px;
+  }
+
+  .text-queue-room .text-room-body {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0 0;
+  }
+
+  .text-queue-room .queue-chat-panel,
+  .text-queue-room .queue-people-panel {
+    width: 100%;
+    min-width: 0;
+    min-height: 270px;
+  }
+
+  .text-queue-room .queue-chat-empty {
+    padding: 24px 18px;
+  }
+
+  .text-queue-room .queue-chat-empty h2 {
+    max-width: 230px;
+    font-size: 21px;
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  .text-queue-room .queue-chat-empty p {
+    max-width: 250px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .text-queue-room .queue-people-panel {
+    min-height: 220px;
+    padding: 16px;
+  }
+
+  .text-queue-room .queue-people-panel h2 {
+    font-size: 20px;
+  }
+
+  .text-queue-room .queue-people-list {
+    margin-top: 16px;
+  }
+
+  .text-queue-room .queue-status-line {
+    font-size: 9px;
+  }
 }

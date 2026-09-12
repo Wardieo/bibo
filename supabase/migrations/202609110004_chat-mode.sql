@@ -66,7 +66,9 @@ begin
   if open_room.id is not null then
     insert into room_participants (room_id, user_id) values (open_room.id, current_user_id);
     select count(*) into current_count from room_participants where room_id = open_room.id and left_at is null;
-    update rooms set status = case when current_count >= needed then 'active' else 'waiting' end where id = open_room.id;
+    update rooms
+    set status = case when current_count >= needed then 'active'::public.room_status else 'waiting'::public.room_status end
+    where id = open_room.id;
     update match_queue set status = 'matched', room_id = open_room.id where id = queue_entry.id;
     return jsonb_build_object('status', 'matched', 'room_id', open_room.id);
   end if;
@@ -86,7 +88,7 @@ begin
   end if;
 
   insert into rooms (status, room_type, max_participants, started_at)
-  values (case when needed = 2 then 'active' else 'waiting' end, requested_mode, needed, now())
+  values (case when needed = 2 then 'active'::public.room_status else 'waiting'::public.room_status end, requested_mode, needed, now())
   returning id into room;
   insert into room_participants (room_id, user_id) values (room, current_user_id), (room, candidate.user_id);
   update match_queue set status = 'matched', room_id = room where id in (queue_entry.id, candidate.id);
