@@ -65,6 +65,7 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
   const [previewStream, setPreviewStream] = useState<MediaStream | null>(null);
   const pollInFlight = useRef(false);
   const connectingRoom = useRef<string | null>(null);
+  const requeueInProgress = useRef(false);
   const onlineCount = useOnlineCount();
   const visibleParticipants = liveRoom
     ? [
@@ -98,6 +99,23 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
         setParticipantVersion((value) => value + 1);
         subscribeToLiveKit(room, () =>
           setParticipantVersion((value) => value + 1),
+          () => {
+            setParticipantVersion((value) => value + 1);
+            if (room.remoteParticipants.size > 0 || requeueInProgress.current)
+              return;
+            requeueInProgress.current = true;
+            setNotice("The other user left. Finding someone new...");
+            void resetMyMatchmakingSession()
+              .catch(() => undefined)
+              .finally(() => {
+                room.disconnect();
+                setLiveRoom(null);
+                setRoomId(null);
+                connectingRoom.current = null;
+                requeueInProgress.current = false;
+                setPhase("searching");
+              });
+          },
         );
         setPhase("live");
       } catch (error) {
@@ -406,6 +424,11 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
             Cancel search
           </button>
         </div>
+        {notice && (
+          <p className="room-notice" role="status">
+            {notice}
+          </p>
+        )}
       </section>
     );
   }

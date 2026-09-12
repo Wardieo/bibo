@@ -33,6 +33,7 @@ export async function createLiveKitRoom(roomId: string) {
 export function subscribeToLiveKit(
   room: Room,
   onParticipantChange: () => void,
+  onParticipantDisconnected?: () => void,
 ) {
   const events = [
     RoomEvent.ParticipantConnected,
@@ -41,5 +42,11 @@ export function subscribeToLiveKit(
     RoomEvent.TrackUnsubscribed,
   ];
   events.forEach((event) => room.on(event, onParticipantChange));
-  return () => events.forEach((event) => room.off(event, onParticipantChange));
+  if (onParticipantDisconnected)
+    room.on(RoomEvent.ParticipantDisconnected, onParticipantDisconnected);
+  return () => {
+    events.forEach((event) => room.off(event, onParticipantChange));
+    if (onParticipantDisconnected)
+      room.off(RoomEvent.ParticipantDisconnected, onParticipantDisconnected);
+  };
 }
