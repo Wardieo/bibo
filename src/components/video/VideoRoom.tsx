@@ -408,6 +408,9 @@ export function VideoRoom({ onLeave }: VideoRoomProps) {
           </article>
           {Array.from({ length: groupSize }).map((_, index) => (
             <article className="video-tile loading-tile" key={index}>
+              <span className="video-watermark" aria-hidden="true">
+                bibo.com
+              </span>
               <span className="loading-ring" />
               <div className="tile-meta">
                 <strong>Waiting for someone</strong>
