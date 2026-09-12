@@ -378,6 +378,9 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
         </div>
         <div className={`video-grid queue-grid capacity-${groupSize}`}>
           <article className="video-tile lavender queue-local">
+            <span className="video-watermark" aria-hidden="true">
+              bibo.com
+            </span>
             {previewStream ? (
               <video
                 ref={(element) => {

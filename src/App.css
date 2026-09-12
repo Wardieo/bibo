@@ -500,6 +500,17 @@ h1 {
   overflow: hidden;
   border-radius: 2px;
 }
+.video-watermark {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.72);
+  font: 500 10px var(--mono);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
 .video-tile.lavender {
   background: #dcd2f4;
 }

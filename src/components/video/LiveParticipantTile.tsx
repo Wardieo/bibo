@@ -43,6 +43,9 @@ export function LiveParticipantTile({
 
   return (
     <article className={`video-tile ${color}`}>
+      <span className="video-watermark" aria-hidden="true">
+        bibo.com
+      </span>
       {videoPublication?.track ? (
         <video
           ref={videoRef}
