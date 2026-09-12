@@ -6,10 +6,12 @@ import { RoomChat } from "../chat/RoomChat";
 import { createLiveKitRoom, subscribeToLiveKit } from "../../lib/livekit";
 import {
   acceptAgeGate,
+  ensureSession,
   joinMatchmaking,
   leaveMatchmaking,
   leaveRoom,
   resetMyMatchmakingSession,
+  subscribeToMatch,
   type DesiredPeople,
 } from "../../lib/matchmaking";
 import { useOnlineCount } from "../../lib/presence";
@@ -116,6 +118,17 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
   useEffect(() => {
     if (phase !== "searching") return;
     let cancelled = false;
+    let unsubscribe: () => void = () => undefined;
+    void ensureSession()
+      .then((session) => {
+        if (!cancelled)
+          unsubscribe = subscribeToMatch(session.user.id, (match) => {
+            if (match.room_id && !cancelled) void connectToRoom(match.room_id);
+          });
+      })
+      .catch((error) => {
+        if (!cancelled) console.error("Match realtime subscription failed", error);
+      });
     const poll = async () => {
       if (pollInFlight.current) return;
       pollInFlight.current = true;
@@ -139,6 +152,7 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
     return () => {
       cancelled = true;
       window.clearInterval(interval);
+      unsubscribe();
     };
   }, [connectToRoom, groupSize, phase]);
 

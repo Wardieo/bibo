@@ -5,10 +5,12 @@ import { useOnlineCount } from "../../lib/presence";
 import { RoomChat } from "./RoomChat";
 import {
   acceptAgeGate,
+  ensureSession,
   joinMatchmaking,
   leaveMatchmaking,
   leaveRoom,
   resetMyMatchmakingSession,
+  subscribeToMatch,
   type DesiredPeople,
 } from "../../lib/matchmaking";
 
@@ -45,9 +47,30 @@ export function TextRoom({ onLeave }: TextRoomProps) {
 
   useEffect(() => {
     if (phase !== "searching") return;
+    let cancelled = false;
+    let unsubscribe: () => void = () => undefined;
+    void ensureSession()
+      .then((session) => {
+        if (!cancelled)
+          unsubscribe = subscribeToMatch(session.user.id, (match) => {
+            if (match.room_id) {
+              startTransition(() => {
+                setRoomId(match.room_id);
+                setPhase("live");
+              });
+            }
+          });
+      })
+      .catch((error) => {
+        if (!cancelled) console.error("Match realtime subscription failed", error);
+      });
     void findTextRoom();
     const interval = window.setInterval(() => void findTextRoom(), 2000);
-    return () => window.clearInterval(interval);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      unsubscribe();
+    };
   }, [findTextRoom, phase]);
 
   const start = async () => {

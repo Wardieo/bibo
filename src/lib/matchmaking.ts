@@ -68,9 +68,12 @@ export async function leaveRoom(roomId: string) {
   if (error) throw error;
 }
 
-export function subscribeToMatch(userId: string, onChange: () => void) {
+export function subscribeToMatch(
+  userId: string,
+  onMatch: (match: MatchResult) => void,
+) {
   const client = requireSupabase();
-  return client
+  const channel = client
     .channel(`matchmaking:${userId}`)
     .on(
       "postgres_changes",
@@ -80,9 +83,19 @@ export function subscribeToMatch(userId: string, onChange: () => void) {
         table: "match_queue",
         filter: `user_id=eq.${userId}`,
       },
-      onChange,
+      (payload) => {
+        const next = payload.new as {
+          room_id?: string | null;
+          status?: string;
+        };
+        if (next.status === "matched" && next.room_id)
+          onMatch({ status: "matched", room_id: next.room_id });
+      },
     )
     .subscribe();
+  return () => {
+    void client.removeChannel(channel);
+  };
 }
 
 export async function getCurrentMatch() {
