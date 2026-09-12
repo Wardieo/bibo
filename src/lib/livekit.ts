@@ -6,8 +6,19 @@ export async function createLiveKitRoom(roomId: string) {
   const { data, error } = await supabase.functions.invoke("livekit-token", {
     body: { roomId },
   });
-  if (error || !data?.token || !data?.url)
-    throw error ?? new Error(data?.error ?? "Unable to create LiveKit token");
+  if (error) {
+    let message = error.message;
+    const context = (error as { context?: Response }).context;
+    if (context) {
+      const payload = (await context.clone().json().catch(() => null)) as
+        | { error?: string }
+        | null;
+      if (payload?.error) message = payload.error;
+    }
+    throw new Error(message);
+  }
+  if (!data?.token || !data?.url)
+    throw new Error(data?.error ?? "LiveKit token response is incomplete.");
   const room = new Room({ adaptiveStream: true, dynacast: true });
   try {
     await room.connect(data.url, data.token);

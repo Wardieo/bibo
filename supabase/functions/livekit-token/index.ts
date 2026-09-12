@@ -37,9 +37,17 @@ Deno.serve(async (request) => {
     if (membershipError || !membership)
       throw new Error("Not a room participant");
 
-    const apiKey = Deno.env.get("LIVEKIT_API_KEY");
-    const apiSecret = Deno.env.get("LIVEKIT_API_SECRET");
-    if (!apiKey || !apiSecret) throw new Error("LiveKit is not configured");
+    const apiKey =
+      Deno.env.get("LIVEKIT_API_KEY") ?? Deno.env.get("VITE_LIVEKIT_API_KEY");
+    const apiSecret =
+      Deno.env.get("LIVEKIT_API_SECRET") ??
+      Deno.env.get("VITE_LIVEKIT_API_SECRET");
+    const liveKitUrl =
+      Deno.env.get("LIVEKIT_URL") ?? Deno.env.get("VITE_LIVEKIT_URL");
+    if (!apiKey || !apiSecret || !liveKitUrl)
+      throw new Error(
+        "LiveKit is not configured. Set LIVEKIT_API_KEY, LIVEKIT_API_SECRET, and LIVEKIT_URL.",
+      );
     const token = new AccessToken(apiKey, apiSecret, {
       identity: user.id,
       ttl: "10m",
@@ -53,7 +61,7 @@ Deno.serve(async (request) => {
     return new Response(
       JSON.stringify({
         token: await token.toJwt(),
-        url: Deno.env.get("LIVEKIT_URL"),
+        url: liveKitUrl,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
