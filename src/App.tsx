@@ -24,9 +24,6 @@ function App() {
         onLeave={() => {
           goTo("/");
         }}
-        onNext={() => {
-          goTo("/video");
-        }}
       />
     );
   if (path === "/text") return <TextRoom onLeave={() => goTo("/")} />;

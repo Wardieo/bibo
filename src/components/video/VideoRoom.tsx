@@ -21,7 +21,6 @@ import { OnlineUsers } from "../presence/OnlineUsers";
 
 type VideoRoomProps = {
   onLeave: () => void;
-  onNext: () => void;
 };
 
 const tileColors = ["lavender", "peach", "mint", "yellow"];
@@ -49,7 +48,7 @@ function describeError(error: unknown, fallback: string) {
   return fallback;
 }
 
-export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
+export function VideoRoom({ onLeave }: VideoRoomProps) {
   const [groupSize, setGroupSize] = useState<1 | 2 | 3>(1);
   const [country, setCountry] = useState("International");
   const [phase, setPhase] = useState<
@@ -217,6 +216,11 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
     setLiveRoom(null);
     setRoomId(null);
     setPhase("setup");
+  };
+
+  const nextQueue = async () => {
+    await endRoom();
+    await startMatching();
   };
 
   const submitReport = (
@@ -497,8 +501,7 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
           className="next-button"
           type="button"
           onClick={() => {
-            void endRoom();
-            onNext();
+            void nextQueue();
           }}
         >
           Next <span aria-hidden="true">-&gt;</span>
@@ -527,8 +530,7 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
                   void blockUser(targetUserId)
                     .then(async () => {
                       setNotice("User blocked. Finding someone new...");
-                      await endRoom();
-                      onNext();
+                      await nextQueue();
                     })
                     .catch((error) =>
                       setNotice(
