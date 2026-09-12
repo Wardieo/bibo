@@ -6,12 +6,14 @@ import { RoomChat } from "../chat/RoomChat";
 import { createLiveKitRoom, subscribeToLiveKit } from "../../lib/livekit";
 import {
   acceptAgeGate,
+  blockUser,
   ensureSession,
   joinMatchmaking,
   leaveMatchmaking,
   leaveRoom,
   resetMyMatchmakingSession,
   subscribeToMatch,
+  submitUserReport,
   type DesiredPeople,
 } from "../../lib/matchmaking";
 import { useOnlineCount } from "../../lib/presence";
@@ -55,7 +57,6 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
   >("setup");
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [cameraOff, setCameraOff] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [notice, setNotice] = useState("");
@@ -220,27 +221,31 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
 
   const submitReport = (
     category: string,
-    _details: string,
+    details: string,
     urgent: boolean,
   ) => {
     setShowReport(false);
-    setNotice(
-      urgent
-        ? "Urgent report sent to the safety team."
-        : `Report sent: ${category}.`,
-    );
+    if (!roomId || !liveRoom?.remoteParticipants.size) return;
+    const targetUserId = Array.from(liveRoom.remoteParticipants.keys())[0];
+    void submitUserReport(targetUserId, roomId, category, details, urgent)
+      .then(() =>
+        setNotice(
+          urgent
+            ? "Urgent report sent to the safety team."
+            : `Report sent: ${category}.`,
+        ),
+      )
+      .catch((error) =>
+        setNotice(
+          error instanceof Error ? error.message : "Unable to send report.",
+        ),
+      );
   };
 
   const toggleMicrophone = async () => {
     const enabled = !muted;
     await liveRoom?.localParticipant.setMicrophoneEnabled(enabled);
     setMuted(!enabled);
-  };
-
-  const toggleCamera = async () => {
-    const enabled = !cameraOff;
-    await liveRoom?.localParticipant.setCameraEnabled(enabled);
-    setCameraOff(!enabled);
   };
 
   if (phase === "setup") {
@@ -486,14 +491,6 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
           {muted ? "mic off" : "mic on"}
         </button>
         <button
-          className={`round-control ${cameraOff ? "active" : ""}`}
-          type="button"
-          onClick={toggleCamera}
-          aria-label={cameraOff ? "Turn camera on" : "Turn camera off"}
-        >
-          {cameraOff ? "cam off" : "cam on"}
-        </button>
-        <button
           className="next-button"
           type="button"
           onClick={() => {
@@ -520,17 +517,27 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
               <button
                 type="button"
                 onClick={() => {
-                  setNotice("Maya was blocked.");
+                  const targetUserId = liveRoom
+                    ? Array.from(liveRoom.remoteParticipants.keys())[0]
+                    : null;
+                  if (!targetUserId) return;
+                  void blockUser(targetUserId)
+                    .then(async () => {
+                      setNotice("User blocked. Finding someone new...");
+                      await endRoom();
+                      onNext();
+                    })
+                    .catch((error) =>
+                      setNotice(
+                        error instanceof Error
+                          ? error.message
+                          : "Unable to block user.",
+                      ),
+                    );
                   setShowMore(false);
                 }}
               >
                 Block
-              </button>
-              <button
-                type="button"
-                onClick={() => setNotice("Room settings are coming soon.")}
-              >
-                Settings
               </button>
             </div>
           )}

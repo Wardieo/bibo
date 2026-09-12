@@ -68,6 +68,32 @@ export async function leaveRoom(roomId: string) {
   if (error) throw error;
 }
 
+export async function blockUser(targetUserId: string) {
+  const client = requireSupabase();
+  const { error } = await client.rpc("block_user", {
+    target_user_id: targetUserId,
+  });
+  if (error) throw error;
+}
+
+export async function submitUserReport(
+  targetUserId: string,
+  roomId: string,
+  category: string,
+  details: string,
+  urgent: boolean,
+) {
+  const client = requireSupabase();
+  const { error } = await client.rpc("submit_user_report", {
+    target_user_id: targetUserId,
+    target_room_id: roomId,
+    report_category: category,
+    report_details: details,
+    is_urgent: urgent,
+  });
+  if (error) throw error;
+}
+
 export function subscribeToMatch(
   userId: string,
   onMatch: (match: MatchResult) => void,
