@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Room } from "livekit-client";
 import { ReportDialog } from "../safety/ReportDialog";
 import { LiveParticipantTile } from "./LiveParticipantTile";
@@ -61,6 +61,8 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
   const [liveRoom, setLiveRoom] = useState<Room | null>(null);
   const [participantVersion, setParticipantVersion] = useState(0);
   const [previewStream, setPreviewStream] = useState<MediaStream | null>(null);
+  const pollInFlight = useRef(false);
+  const connectingRoom = useRef<string | null>(null);
   const onlineCount = useOnlineCount();
   const visibleParticipants = liveRoom
     ? [
@@ -83,6 +85,8 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
 
   const connectToRoom = useCallback(
     async (matchedRoomId: string) => {
+      if (connectingRoom.current) return;
+      connectingRoom.current = matchedRoomId;
       stopPreview();
       setRoomId(matchedRoomId);
       setPhase("connecting");
@@ -95,12 +99,15 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
         );
         setPhase("live");
       } catch (error) {
+        connectingRoom.current = null;
+        await resetMyMatchmakingSession().catch(() => undefined);
+        setRoomId(null);
         setNotice(
           error instanceof Error
             ? error.message
             : "Unable to connect to the video room.",
         );
-        setPhase("searching");
+        setPhase("setup");
       }
     },
     [stopPreview],
@@ -110,6 +117,8 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
     if (phase !== "searching") return;
     let cancelled = false;
     const poll = async () => {
+      if (pollInFlight.current) return;
+      pollInFlight.current = true;
       try {
         const match = await joinMatchmaking(
           groupSize as DesiredPeople,
@@ -121,6 +130,8 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
         console.error("Matchmaking poll failed", error);
         if (!cancelled)
           setNotice(describeError(error, "Unable to check your match."));
+      } finally {
+        pollInFlight.current = false;
       }
     };
     void poll();
@@ -141,7 +152,6 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
   const startMatching = async () => {
     setNotice("");
     navigate("/video");
-    setPhase("searching");
     try {
       await resetMyMatchmakingSession();
       if (navigator.mediaDevices?.getUserMedia) {
@@ -152,9 +162,7 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
         setPreviewStream(stream);
       }
       await acceptAgeGate();
-      const result = await joinMatchmaking(groupSize as DesiredPeople, "video");
-      if (result.status === "matched" && result.room_id)
-        await connectToRoom(result.room_id);
+      setPhase("searching");
     } catch (error) {
       console.error("Unable to enter matchmaking", error);
       stopPreview();
@@ -171,6 +179,7 @@ export function VideoRoom({ onLeave, onNext }: VideoRoomProps) {
   const endRoom = async () => {
     stopPreview();
     liveRoom?.disconnect();
+    connectingRoom.current = null;
     if (roomId) await leaveRoom(roomId).catch(() => undefined);
     setLiveRoom(null);
     setRoomId(null);

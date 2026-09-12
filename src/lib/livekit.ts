@@ -9,9 +9,14 @@ export async function createLiveKitRoom(roomId: string) {
   if (error || !data?.token || !data?.url)
     throw error ?? new Error(data?.error ?? "Unable to create LiveKit token");
   const room = new Room({ adaptiveStream: true, dynacast: true });
-  await room.connect(data.url, data.token);
-  await room.localParticipant.enableCameraAndMicrophone();
-  return room;
+  try {
+    await room.connect(data.url, data.token);
+    await room.localParticipant.enableCameraAndMicrophone();
+    return room;
+  } catch (error) {
+    room.disconnect();
+    throw error;
+  }
 }
 
 export function subscribeToLiveKit(
